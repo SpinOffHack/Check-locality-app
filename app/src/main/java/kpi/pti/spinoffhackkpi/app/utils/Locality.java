@@ -1,6 +1,5 @@
 package kpi.pti.spinoffhackkpi.app.utils;
 
-import android.content.ContentValues;
 import android.location.Location;
 import android.location.LocationManager;
 import java.util.Date;
