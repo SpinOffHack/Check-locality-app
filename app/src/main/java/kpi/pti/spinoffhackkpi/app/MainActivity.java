@@ -1,6 +1,5 @@
 package kpi.pti.spinoffhackkpi.app;
 
-import java.util.Date;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,39 +13,42 @@ import kpi.pti.spinoffhackkpi.app.utils.DBHelper;
 import kpi.pti.spinoffhackkpi.app.utils.Locality;
 import kpi.pti.spinoffhackkpi.app.utils.User;
 
+import java.util.Date;
+
 
 public class MainActivity extends Activity {
-    TextView tvEnabledGPS;
-    TextView tvLocationGPS;
-    TextView tvEnabledNet;
-    TextView tvLocationNet;
+    TextView tvEnabled;
+    TextView tvLocation;
 
     private LocationManager locationManager;
     private User user;
     private Location location;
     private Locality currentLocate;
+    private DBHelper connector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
-        tvEnabledGPS = (TextView) findViewById(R.id.tvEnabledGPS);
-        tvLocationGPS = (TextView) findViewById(R.id.tvLocationGPS);
-        tvEnabledNet = (TextView) findViewById(R.id.tvEnabledNet);
-        tvLocationNet = (TextView) findViewById(R.id.tvLocationNet);
+        tvEnabled = (TextView) findViewById(R.id.tvEnabledNet);
+        tvLocation = (TextView) findViewById(R.id.tvLocationNet);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         currentLocate = new Locality();
-        DBHelper connector = new DBHelper(this);
-        connector.close();
+        connector = new DBHelper(this);
+        user = new User("Pyshankov","qwerty");
+
+
+
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                1000 * 2, 1, locationListener);
+                1000 , 1, locationListener);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                1000 * 2, 1, locationListener);
+                1000, 1, locationListener);
 
     }
 
@@ -56,7 +58,12 @@ public class MainActivity extends Activity {
         locationManager.removeUpdates(locationListener);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        connector.close();
 
+    }
 
     public void onClickLocationSettings(View view) {
         startActivity(new Intent(
@@ -66,13 +73,14 @@ public class MainActivity extends Activity {
     public LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            //add to db
             currentLocate.updateData(location);
-            if (currentLocate.ckeckEnabledNetwork()) {
-                tvLocationNet.setText("Network "+currentLocate.toString());
-            } else if (currentLocate.checkEnabledGPS()){
-                tvLocationNet.setText("GPS "+currentLocate.toString());
+            if (currentLocate.ckeckEnabledNetwork(locationManager)) {
+                tvLocation.setText("Network "+currentLocate.toString());
+            } else if (currentLocate.checkEnabledGPS(locationManager)){
+                tvLocation.setText("GPS "+currentLocate.toString());
             }
+            //add to db
+            connector.addLocate(currentLocate,user);
 
         }
 
@@ -82,7 +90,11 @@ public class MainActivity extends Activity {
 
         @Override
         public void onProviderEnabled(String provider) {
-            if (currentLocate.checkEnabledGPS()|| currentLocate.ckeckEnabledNetwork()){
+            if (currentLocate.ckeckEnabledNetwork(locationManager)){
+                tvEnabled.setText("GPS");
+                currentLocate.updateData(locationManager.getLastKnownLocation(provider));
+            } else if ( currentLocate.checkEnabledGPS(locationManager)){
+                tvEnabled.setText("Network");
                 currentLocate.updateData(locationManager.getLastKnownLocation(provider));
             }
         }

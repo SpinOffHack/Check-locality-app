@@ -11,7 +11,6 @@ public class User {
 
     public User(){}
     public User(String login,String password){
-        super();
         this.login=login;
         this.password=password;
     }
