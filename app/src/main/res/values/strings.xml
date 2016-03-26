@@ -3,4 +3,6 @@
     <string name="action_settings">Settings</string>
     <string name="provider_network">Results:</string>
     <string name="location_settings">Location settings if disable</string>
+    <string name="users">Large Text</string>
+    <string name="locations">Large Text</string>
 </resources>

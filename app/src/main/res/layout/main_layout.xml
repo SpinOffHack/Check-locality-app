@@ -34,4 +34,16 @@
             android:onClick="onClickLocationSettings"
             android:text="@string/location_settings">
     </Button>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/users"
+            android:id="@+id/userLabel" android:layout_gravity="center_horizontal"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/locations"
+            android:id="@+id/Locations" android:layout_gravity="center_horizontal"/>
 </LinearLayout>

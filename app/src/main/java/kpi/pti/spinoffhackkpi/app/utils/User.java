@@ -14,6 +14,11 @@ public class User {
         this.login=login;
         this.password=password;
     }
+    public User(String login,String password,ArrayList<Locality> localities){
+        this.login=login;
+        this.password=password;
+        this.localities=localities;
+    }
 
     public String getLogin() {
         return login;
@@ -29,5 +34,21 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public ArrayList<Locality> getLocalities() {
+        return localities;
+    }
+
+    public void setLocalities(ArrayList<Locality> localities) {
+        this.localities = localities;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "login='" + login + '\'' +
+                ", localities=" + localities.toString() +
+                '}';
     }
 }

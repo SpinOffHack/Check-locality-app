@@ -18,17 +18,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class MainActivity extends Activity {
     TextView tvEnabled;
     TextView tvLocation;
+    TextView UserLabel;
+    TextView LocationsView;
 
     private LocationManager locationManager;
     private User user;
@@ -42,12 +44,13 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main_layout);
         tvEnabled = (TextView) findViewById(R.id.tvEnabledNet);
         tvLocation = (TextView) findViewById(R.id.tvLocationNet);
+        UserLabel = (TextView) findViewById(R.id.userLabel);
+        LocationsView = (TextView) findViewById(R.id.Locations);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         currentLocate = new Locality();
-        connector = new DBHelper(this);
-        user = new User("pyshankov", "12321");
+        //connector = new DBHelper(this);
+        //user = new User("pyshankov", "12321");
         new ParseTask().execute();
-
 
     }
 
@@ -89,7 +92,7 @@ public class MainActivity extends Activity {
                 tvLocation.setText("GPS " + currentLocate.toString());
             }
             //add to db
-            connector.addLocate(currentLocate, user);
+            //connector.addLocate(currentLocate, user);
 
         }
 
@@ -121,26 +124,19 @@ public class MainActivity extends Activity {
 
         @Override
         protected String doInBackground(Void... params) {
-            // получаем данные с внешнего ресурса
             try {
                 URL url = new URL("https://tisom.herokuapp.com");
-
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
-
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
-
                 reader = new BufferedReader(new InputStreamReader(inputStream));
-
                 String line;
                 while ((line = reader.readLine()) != null) {
                     buffer.append(line);
                 }
-
                 resultJson = buffer.toString();
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -149,35 +145,42 @@ public class MainActivity extends Activity {
         @Override
         protected void onPostExecute(String strJson) {
             super.onPostExecute(strJson);
-            // выводим целиком полученную json-строку
             Log.d("ALL", strJson);
-
-            JSONObject dataJsonObj = null;
-            String secondName = "";
-
             try {
-                dataJsonObj = new JSONObject(strJson);
-                JSONArray friends = dataJsonObj.getJSONArray("");
-
-                JSONObject first = friends.getJSONObject(1);
-                tvEnabled.setText(first.getString("login"));
+                JSONArray array= new JSONArray(strJson);
                 /*
-                // 2. перебираем и выводим контакты каждого друга
-                for (int i = 0; i < friends.length(); i++) {
-                    JSONObject friend = friends.getJSONObject(i);
+                JSONObject firstLocation=array.getJSONObject(0);
+                JSONArray localities=new JSONArray(firstLocation.getString("localities"));
 
-                    JSONObject contacts = friend.getJSONObject("contacts");
-
-                    String phone = contacts.getString("mobile");
-                    String email = contacts.getString("email");
-                    String skype = contacts.getString("skype");
-                    tvEnabled.setText(skype);
-
-                    Log.d("MY", "phone: " + phone);
-                    Log.d("MY", "email: " + email);
-                    Log.d("MY", "skype: " + skype);
+                ArrayList<String> list=new ArrayList<String>();
+                for (int i=0;i<localities.length();i++){
+                    String latitude = localities.getJSONObject(i).getString("latitude");
+                    String longitude = localities.getJSONObject(i).getString("longitude");
+                    list.add("("+latitude+" , "+longitude+")");
                 }
                 */
+                ArrayList<User> userList= new ArrayList<User>();
+
+                for (int i=0;i<array.length();i++){
+                    ArrayList<Locality> locationsList= new ArrayList<Locality>();
+                    JSONObject entity=array.getJSONObject(i);
+                    JSONArray localities=new JSONArray(entity.getString("localities"));
+                    for (int j=0;j<localities.length();j++){
+                        Double latitude = localities.getJSONObject(i).getDouble("latitude");
+                        Double longitude = localities.getJSONObject(i).getDouble("longitude");
+                        Long timestamp = localities.getJSONObject(i).getLong("timestamp");
+                        locationsList.add(new Locality(latitude,longitude,new Date(timestamp*1000L)));
+                        //LocationsView.setText(new Locality(latitude,longitude,new Date(timestamp*1000L)).toString());
+                    }
+                    userList.add(new User(entity.getString("login"),entity.getString("password"),locationsList));
+                    //LocationsView.setText("his locations : "+locationsList.toString());
+                }
+
+
+               // tvEnabled.setText(firstLocation.getString("localities"));
+                UserLabel.setText("users: "+userList.toString());
+                //LocationsView.setText(new Date(1478736000000L*1000L).toString());
+                //LocationsView.setText(list.toString());
             } catch (JSONException e) {
                 e.printStackTrace();
             }

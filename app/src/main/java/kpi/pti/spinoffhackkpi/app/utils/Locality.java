@@ -9,6 +9,11 @@ public class Locality {
     private double longitude;
     private Date timestamp;
     public Locality(){}
+    public Locality(double x,double y,Date timestamp){
+        latitude=x;
+        longitude=y;
+        this.timestamp=timestamp;
+    }
 
     @Override
     public String toString() {
@@ -16,7 +21,7 @@ public class Locality {
         return "Locale(" +
                 "y=" + longitude +
                 ", x=" + latitude +
-                ", timestamp=" + timestamp +
+                ", timestamp=" + timestamp.toString() +
                 ')';
     }
 
