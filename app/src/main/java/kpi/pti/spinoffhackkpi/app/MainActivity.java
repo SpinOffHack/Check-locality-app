@@ -48,8 +48,8 @@ public class MainActivity extends Activity {
         LocationsView = (TextView) findViewById(R.id.Locations);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         currentLocate = new Locality();
-        //connector = new DBHelper(this);
-        //user = new User("pyshankov", "12321");
+        connector = new DBHelper(this);
+        user = new User("current", "pswd");
         new ParseTask().execute();
 
     }
@@ -92,7 +92,8 @@ public class MainActivity extends Activity {
                 tvLocation.setText("GPS " + currentLocate.toString());
             }
             //add to db
-            //connector.addLocate(currentLocate, user);
+            connector.addLocate(currentLocate, user);
+            LocationsView.setText("Success");
 
         }
 
