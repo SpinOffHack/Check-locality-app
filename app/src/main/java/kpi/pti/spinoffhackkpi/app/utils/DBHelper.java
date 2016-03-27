@@ -3,8 +3,12 @@ package kpi.pti.spinoffhackkpi.app.utils;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -51,5 +55,23 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public ArrayList<Locality> getLocationList(User user){
+        String selectQuery = "SELECT  * FROM " + TABLE_LOCATIONS + "WHERE login = '"+user.getLogin()+"'";
+        ArrayList<Locality> localityList = new ArrayList<Locality>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Locality location = new Locality();
+                location.setTimestamp(new Date(cursor.getString(4)));
+                location.setLatitude(cursor.getDouble(2));
+                location.setLongitude(cursor.getDouble(3));
+                localityList.add(location);
+            } while (cursor.moveToNext());
+        }
+
+        return localityList;
+    }
 
 }
